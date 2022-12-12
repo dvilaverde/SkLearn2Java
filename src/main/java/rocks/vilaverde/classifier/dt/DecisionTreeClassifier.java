@@ -1,6 +1,6 @@
 package rocks.vilaverde.classifier.dt;
 
-import rocks.vilaverde.classifier.Classification;
+import rocks.vilaverde.classifier.Prediction;
 import rocks.vilaverde.classifier.Classifier;
 import rocks.vilaverde.classifier.Operator;
 import java.io.BufferedReader;
@@ -17,7 +17,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
   public static <T> Classifier<T> parse(Reader reader, PredictionFactory<T> factory) throws Exception {
 
     try (reader) {
-      DecisionTreeClassifier classifier = new DecisionTreeClassifier(factory);
+      DecisionTreeClassifier<T> classifier = new DecisionTreeClassifier<>(factory);
 
       classifier.load(reader);
 
@@ -29,7 +29,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
     }
   }
 
-  private PredictionFactory<T> predictionFactory;
+  private final PredictionFactory<T> predictionFactory;
   private DecisionNode root;
 
   private Set<String> featureNames;
@@ -45,7 +45,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
    * Make a prediction for the features provided.
    */
   public T predict(Map<String, Double> features) {
-    return findClassification(features).getPrediction().get();
+    return findClassification(features).get();
   }
 
   @Override
@@ -54,9 +54,9 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
   }
 
   /**
-   * Find the {@link Classification} in the decision tree.
+   * Find the {@link Prediction} in the decision tree.
    */
-  private Classification<T> findClassification(Map<String, Double> features) {
+  private Prediction<T> findClassification(Map<String, Double> features) {
     validateFeature(features);
 
     TreeNode currentNode = root;
@@ -70,13 +70,14 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
         ChoiceNode selection = null;
         for (TreeNode child : decisionNode.getChildren()) {
 
-          Double value = features.get(decisionNode.getFeatureName());
-          if (value == null) {
-            value = Double.NaN;
+          Double featureValue = features.get(decisionNode.getFeatureName());
+          if (featureValue == null) {
+            featureValue = Double.NaN;
           }
 
           // find the path to traverse by evaluating all choices
-          if (((ChoiceNode) child).eval(value)) {
+
+          if (((ChoiceNode) child).eval(featureValue)) {
             selection = (ChoiceNode) child;
             break;
           }
@@ -92,7 +93,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
       }
     }
 
-    return (Classification<T>) currentNode;
+    return (Prediction<T>) currentNode;
   }
 
   /**
@@ -153,7 +154,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
 
     // we have a EndNode, so pop the stack should contain a ChoiceNode,
     // pop that and add the end as a child.
-    EndNode node = EndNode.create(line, predictionFactory);
+    EndNode<T> node = EndNode.create(line, predictionFactory);
     ((ChoiceNode)stack.pop()).addChild(node);
 
     // if the current choice has been popped check if the decision node

@@ -3,6 +3,10 @@ package rocks.vilaverde.classifier.dt;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a decision in the DecisionTreeClassifier. The decision will have
+ * a left and right hand choice to be evaluated. Choices may have nested DecisionNodes.
+ */
 class DecisionNode extends TreeNode {
 
   private final String featureName;

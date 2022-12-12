@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import rocks.vilaverde.classifier.dt.DecisionTreeClassifier;
 import rocks.vilaverde.classifier.dt.PredictionFactory;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collections;
@@ -16,10 +17,8 @@ public class DecisionTreeClassifierTest {
 
     @Test
     public void parseSimpleTree() throws Exception {
-        ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
-        Reader tree = new InputStreamReader(cl.getResourceAsStream("simple-tree.model"));
-        final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree,
-                new PredictionFactory.BooleanPredictionFactory());
+        Reader tree = getExportedModel("simple-tree.model");
+        final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
         Assertions.assertNotNull(decisionTree);
 
         Assertions.assertFalse(decisionTree.predict(Collections.singletonMap("feature1", 1.2)));
@@ -32,10 +31,8 @@ public class DecisionTreeClassifierTest {
 
     @Test
     public void parseDeepTree() throws Exception {
-        ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
-        Reader tree = new InputStreamReader(cl.getResourceAsStream("decision-tree.model"));
-        final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree,
-                new PredictionFactory.BooleanPredictionFactory());
+        Reader tree = getExportedModel("decision-tree.model");
+        final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
         Assertions.assertNotNull(decisionTree);
 
         Map<String, Double> features = new HashMap<>();
@@ -58,12 +55,10 @@ public class DecisionTreeClassifierTest {
     }
 
     @Test
-    public void invalidFeatureName() throws Exception {
+    public void invalidFeatureName() {
         IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
-            Reader tree = new InputStreamReader(cl.getResourceAsStream("decision-tree.model"));
-            final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree,
-                    new PredictionFactory.BooleanPredictionFactory());
+            Reader tree = getExportedModel("decision-tree.model");
+            final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
             Assertions.assertNotNull(decisionTree);
 
             Map<String, Double> features = new HashMap<>();
@@ -84,12 +79,10 @@ public class DecisionTreeClassifierTest {
     }
 
     @Test
-    public void invalidFeatureCount() throws Exception {
+    public void invalidFeatureCount() {
         IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
-            Reader tree = new InputStreamReader(cl.getResourceAsStream("decision-tree.model"));
-            final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree,
-                    new PredictionFactory.BooleanPredictionFactory());
+            Reader tree = getExportedModel("decision-tree.model");
+            final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
             Assertions.assertNotNull(decisionTree);
 
             Map<String, Double> features = new HashMap<>();
@@ -109,10 +102,8 @@ public class DecisionTreeClassifierTest {
 
     @Test
     public void probability() throws Exception {
-        ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
-        Reader tree = new InputStreamReader(cl.getResourceAsStream("decision-tree.model"));
-        final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree,
-                new PredictionFactory.BooleanPredictionFactory());
+        Reader tree = getExportedModel("decision-tree.model");
+        final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
         Assertions.assertNotNull(decisionTree);
 
         Map<String, Double> features = new HashMap<>();
@@ -135,10 +126,8 @@ public class DecisionTreeClassifierTest {
 
     @Test
     public void noWeights() throws Exception {
-        ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
-        Reader tree = new InputStreamReader(cl.getResourceAsStream("iris.model"));
-        final Classifier<Integer> decisionTree = DecisionTreeClassifier.parse(tree,
-                new PredictionFactory.IntegerPredictionFactory());
+        Reader tree = getExportedModel("iris.model");
+        final Classifier<Integer> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.INTEGER);
         Assertions.assertNotNull(decisionTree);
 
         Map<String, Double> features = new HashMap<>();
@@ -155,5 +144,14 @@ public class DecisionTreeClassifierTest {
         features.put("sepal length (cm)", 6.0);
         prediction = decisionTree.predict(features);
         Assertions.assertEquals(2, prediction.intValue());
+    }
+
+    private Reader getExportedModel(String fileName) {
+        ClassLoader cl = DecisionTreeClassifierTest.class.getClassLoader();
+        InputStream stream = cl.getResourceAsStream(fileName);
+        if (stream == null) {
+            throw new RuntimeException(String.format("no model found with name %s", fileName));
+        }
+        return new InputStreamReader(stream);
     }
 }

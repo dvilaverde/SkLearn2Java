@@ -11,23 +11,11 @@ package rocks.vilaverde.classifier.dt;
 /**
  * A prediction from the classifier
  */
+@FunctionalInterface
 public interface PredictionFactory<T> {
 
-    Prediction<T> create(String value);
+    PredictionFactory<Boolean> BOOLEAN = value ->  Boolean.valueOf(value.toLowerCase());
+    PredictionFactory<Integer> INTEGER = Integer::valueOf;
 
-    public class BooleanPredictionFactory implements PredictionFactory<Boolean> {
-
-        @Override
-        public Prediction<Boolean> create(final String value) {
-            return () -> Boolean.valueOf(value.toLowerCase());
-        }
-    }
-
-    public class IntegerPredictionFactory implements PredictionFactory<Integer> {
-
-        @Override
-        public Prediction<Integer> create(String value) {
-            return () -> Integer.valueOf(value);
-        }
-    }
+    T create(String value);
 }
