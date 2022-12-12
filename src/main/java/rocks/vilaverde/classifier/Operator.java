@@ -22,6 +22,8 @@ public enum Operator {
 
   /**
    * Parse an operator string to an enumeration.
+   * @param op the operation as string to convert to an enum.
+   * @return the Operator
    */
   public static Operator from(String op) {
     for (Operator o : values()) {

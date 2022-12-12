@@ -28,9 +28,7 @@ export_text() as shown below:
 
 can be executed in Java using 
 
-```java
-
-    
+```
     Reader tree = getTrainedModel("iris.model");
     final Classifier<Integer> decisionTree = DecisionTreeClassifier.parse(tree,
                 new PredictionFactory.IntegerPredictionFactory());
@@ -48,7 +46,7 @@ can be executed in Java using
 ## Support
 * The tree.DecisionTreeClassifier is supported
   * Supports `predict()`, 
-  * Supports `predict_proba()` when export_text() configured with `show_weights=True` 
+  * Supports `predict_proba()` when `export_text()` configured with `show_weights=True` 
 
 ## Testing
 Testing was done using sci-kit learn 1.1.3.

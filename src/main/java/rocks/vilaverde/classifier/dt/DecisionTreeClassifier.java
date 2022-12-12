@@ -13,6 +13,11 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
 
   /**
    * Factory method to create the classifier from the {@link Reader}.
+   * @param reader the input Reader
+   * @param factory the factory used to convert the prediction class to the correct result type
+   * @return the Classifier
+   * @param <T> class
+   * @throws Exception when the model could no be parsed
    */
   public static <T> Classifier<T> parse(Reader reader, PredictionFactory<T> factory) throws Exception {
 
@@ -42,12 +47,21 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
   }
 
   /**
-   * Make a prediction for the features provided.
+   * Predict class or regression value for features.
+   * For the classification model, the predicted class for the features of the sample is returned.
+   * @param features Map of feature name to value
+   * @return predicted class
    */
   public T predict(Map<String, Double> features) {
     return findClassification(features).get();
   }
 
+  /**
+   * Predict class probabilities of the input features.
+   * The predicted class probability is the fraction of samples of the same class in a leaf.
+   * @param features Map of feature name to value
+   * @return the class probabilities of the input sample
+   */
   @Override
   public double[] predict_proba(Map<String, Double> features) {
     return findClassification(features).getProbability();
