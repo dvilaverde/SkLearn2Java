@@ -1,0 +1,25 @@
+|--- petal width (cm) <= 0.80
+|   |--- class: 0
+|--- petal width (cm) >  0.80
+|   |--- petal width (cm) <= 1.75
+|   |   |--- petal length (cm) <= 4.95
+|   |   |   |--- petal width (cm) <= 1.65
+|   |   |   |   |--- class: 1
+|   |   |   |--- petal width (cm) >  1.65
+|   |   |   |   |--- class: 2
+|   |   |--- petal length (cm) >  4.95
+|   |   |   |--- petal width (cm) <= 1.55
+|   |   |   |   |--- class: 2
+|   |   |   |--- petal width (cm) >  1.55
+|   |   |   |   |--- sepal length (cm) <= 6.95
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- sepal length (cm) >  6.95
+|   |   |   |   |   |--- class: 2
+|   |--- petal width (cm) >  1.75
+|   |   |--- petal length (cm) <= 4.85
+|   |   |   |--- sepal length (cm) <= 5.95
+|   |   |   |   |--- class: 1
+|   |   |   |--- sepal length (cm) >  5.95
+|   |   |   |   |--- class: 2
+|   |   |--- petal length (cm) >  4.85
+|   |   |   |--- class: 2

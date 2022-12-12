@@ -1,0 +1,4 @@
+|--- feature1 <= 1.5000
+|   |--- weights: [5.0000, 2.0000] class: False
+|--- feature1 >  1.5000
+|   |--- weights: [1.0000, 0.0000] class: True
