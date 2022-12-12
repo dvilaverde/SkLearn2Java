@@ -26,7 +26,20 @@ export_text() as shown below:
 |   |   |--- class: 2
 ```
 
-can be executed in Java using 
+can be executed in Java Maven.
+
+### Importing Maven Dependency
+```xml
+<dependency>
+  <groupId>rocks.vilaverde</groupId>
+  <artifactId>scikit-learn-2-java</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+### Java Example
+In this example the iris model exported using `export_tree` is parsed, features are created as a Java Map
+and the decision tree is asked to predict the class.
 
 ```
     Reader tree = getTrainedModel("iris.model");
@@ -46,7 +59,7 @@ can be executed in Java using
 ## Support
 * The tree.DecisionTreeClassifier is supported
   * Supports `predict()`, 
-  * Supports `predict_proba()` when `export_text()` configured with `show_weights=True` 
+  * Supports `predict_proba()` when `export_text()` configured with `show_weights=True`
 
 ## Testing
 Testing was done using sci-kit learn 1.1.3.
