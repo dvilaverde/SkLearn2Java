@@ -14,7 +14,7 @@ export_text() as shown below:
 >>> y = iris['target']
 >>> decision_tree = DecisionTreeClassifier(random_state=0, max_depth=2)
 >>> decision_tree = decision_tree.fit(X, y)
->>> r = export_text(decision_tree, feature_names=iris['feature_names'])
+>>> r = export_text(decision_tree, feature_names=iris['feature_names'], show_weights=True, max_depth=sys.maxsize)
 >>> print(r)
 
 |--- petal width (cm) <= 0.80
@@ -26,7 +26,8 @@ export_text() as shown below:
 |   |   |--- class: 2
 ```
 
-can be executed in Java Maven.
+can be executed in Java Maven. Note that when calling `export_text` it is recommended that `max_depth` be set
+to sys.maxsize so that the tree isn't truncated.
 
 ### Importing Maven Dependency
 ```xml
