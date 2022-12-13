@@ -1,15 +1,15 @@
 package rocks.vilaverde.classifier.dt;
 
-import rocks.vilaverde.classifier.Prediction;
-import rocks.vilaverde.classifier.Classifier;
 import rocks.vilaverde.classifier.Operator;
+import rocks.vilaverde.classifier.Prediction;
+
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-public class DecisionTreeClassifier<T> implements Classifier<T> {
+public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
 
   /**
    * Factory method to create the classifier from the {@link Reader}.
@@ -19,7 +19,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
    * @param <T> class
    * @throws Exception when the model could no be parsed
    */
-  public static <T> Classifier<T> parse(Reader reader, PredictionFactory<T> factory) throws Exception {
+  public static <T> DecisionTreeClassifier<T> parse(Reader reader, PredictionFactory<T> factory) throws Exception {
 
     try (reader) {
       DecisionTreeClassifier<T> classifier = new DecisionTreeClassifier<>(factory);
@@ -53,7 +53,7 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
    * @return predicted class
    */
   public T predict(Map<String, Double> features) {
-    return findClassification(features).get();
+    return getClassification(features).get();
   }
 
   /**
@@ -64,13 +64,13 @@ public class DecisionTreeClassifier<T> implements Classifier<T> {
    */
   @Override
   public double[] predict_proba(Map<String, Double> features) {
-    return findClassification(features).getProbability();
+    return getClassification(features).getProbability();
   }
 
   /**
    * Find the {@link Prediction} in the decision tree.
    */
-  private Prediction<T> findClassification(Map<String, Double> features) {
+  public Prediction<T> getClassification(Map<String, Double> features) {
     validateFeature(features);
 
     TreeNode currentNode = root;
