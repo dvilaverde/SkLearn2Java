@@ -6,7 +6,7 @@
 
     <groupId>rocks.vilaverde</groupId>
     <artifactId>scikit-learn-2-java</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A sklearn exported_text models parser for executing in the Java runtime.</description>

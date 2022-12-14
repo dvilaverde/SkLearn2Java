@@ -28,8 +28,7 @@ public abstract class AbstractDecisionTreeVisitor implements Visitor<TreeNode> {
   public void visit(DecisionNode object) {
     visitBase(object);
 
-    for (TreeNode child : object.getChildren()) {
-      child.accept(this);
-    }
+    object.getLeft().accept(this);
+    object.getRight().accept(this);
   }
 }

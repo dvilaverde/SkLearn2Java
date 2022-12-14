@@ -3,6 +3,7 @@ package rocks.vilaverde.classifier.dt;
 import rocks.vilaverde.classifier.Operator;
 import rocks.vilaverde.classifier.Prediction;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.Map;
@@ -36,7 +37,6 @@ public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
 
   private final PredictionFactory<T> predictionFactory;
   private DecisionNode root;
-
   private Set<String> featureNames;
 
   /**
@@ -81,28 +81,19 @@ public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
       if (currentNode != null) {
         DecisionNode decisionNode = ((DecisionNode) currentNode);
 
-        ChoiceNode selection = null;
-        for (TreeNode child : decisionNode.getChildren()) {
-
-          Double featureValue = features.get(decisionNode.getFeatureName());
-          if (featureValue == null) {
-            featureValue = Double.NaN;
-          }
-
-          // find the path to traverse by evaluating all choices
-
-          if (((ChoiceNode) child).eval(featureValue)) {
-            selection = (ChoiceNode) child;
-            break;
-          }
+        Double featureValue = features.get(decisionNode.getFeatureName());
+        if (featureValue == null) {
+          featureValue = Double.NaN;
         }
 
-        if (selection != null) {
-          currentNode = selection.getChild();
+        if (decisionNode.getLeft().eval(featureValue)) {
+          currentNode = decisionNode.getLeft().getChild();
+        } else if (decisionNode.getRight().eval(featureValue)) {
+          currentNode = decisionNode.getRight().getChild();
         } else {
           // if I get here something is wrong since none of the branches evaluated to true
           throw new RuntimeException(String.format("no branches evaluated to true for feature '%s'",
-              decisionNode.getFeatureName()));
+                  decisionNode.getFeatureName()));
         }
       }
     }
@@ -174,7 +165,7 @@ public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
     // if the current choice has been popped check if the decision node
     // has 2 operations, and if so pop that one as well and any other
     // completed decision nodes.
-    while (stack.size() > 1 && ((DecisionNode)stack.peek()).getChildren().size() == 2 ) {
+    while (stack.size() > 1 && ((DecisionNode)stack.peek()).isComplete() ) {
       stack.pop();
     }
   }
@@ -215,7 +206,13 @@ public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
     }
 
     ChoiceNode choice = ChoiceNode.create(op, value);
-    decisionNode.getChildren().add(choice);
+
+    if (decisionNode.getLeft() == null) {
+      decisionNode.setLeft(choice);
+    } else {
+      decisionNode.setRight(choice);
+    }
+
     stack.push(choice);
   }
 
