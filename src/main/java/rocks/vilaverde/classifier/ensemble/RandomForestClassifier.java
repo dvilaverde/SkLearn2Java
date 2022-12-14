@@ -46,7 +46,7 @@ public class RandomForestClassifier<T> implements Classifier<T> {
      * @param factory the factory for creating the prediction class
      * @param executor An {@link ExecutorService} to run classification against the trees in parallel.
      * @return the {@link Classifier}
-     * @param <T> the classifer type
+     * @param <T> the classifier type
      * @throws Exception when the model could no be parsed
      */
     public static <T> Classifier<T> parse(final TarArchiveInputStream tar,
@@ -93,15 +93,18 @@ public class RandomForestClassifier<T> implements Classifier<T> {
         this.executorService = executor;
     }
 
+    /**
+     * Predict class or regression value for features.
+     * @param features features of the sample
+     * @return class probabilities of the input sample
+     */
     @Override
     public T predict(Map<String, Double> features) {
-
         List<Prediction<T>> predictions = getPredictions(features);
-
         Map<T, Long> map = predictions.stream()
                 .collect(Collectors.groupingBy(Prediction::get, Collectors.counting()));
 
-        long max = map.values().stream().mapToLong(Long::longValue).max().getAsLong();
+        long max = map.values().stream().mapToLong(Long::longValue).max().orElse(0);
         for (Map.Entry<T, Long> entry : map.entrySet()) {
             if (entry.getValue() == max) {
                 return entry.getKey();
@@ -111,6 +114,12 @@ public class RandomForestClassifier<T> implements Classifier<T> {
         throw new IllegalStateException("no classification");
     }
 
+    /**
+     * Predict class probabilities of the input samples features.
+     * The predicted class probability is the fraction of samples of the same class in a leaf.
+     * @param features the input samples
+     * @return the class probabilities of the input sample
+     */
     @Override
     public double[] predict_proba(Map<String, Double> features) {
         if (forest.size() == 1) {
@@ -120,7 +129,6 @@ public class RandomForestClassifier<T> implements Classifier<T> {
         List<Prediction<T>> predictions = getPredictions(features);
 
         double[] result = null;
-
         for (Prediction<T> prediction : predictions) {
             double[] prob = prediction.getProbability();
 
@@ -143,14 +151,16 @@ public class RandomForestClassifier<T> implements Classifier<T> {
         return result;
     }
 
+    /**
+     * Get all the predictions for the features of the sample
+     * @param features features of the sample
+     * @return a List of {@link Prediction} objects from the trees in the forest.
+     */
     protected List<Prediction<T>> getPredictions(final Map<String, Double> features) {
-
         List<Prediction<T>> predictions;
 
         if (executorService != null) {
-
             int jobs = Runtime.getRuntime().availableProcessors();
-
             List<ParallelPrediction<T>> parallel = new ArrayList<>(jobs);
             for (int i = 0; i < jobs; i++) {
                 ParallelPrediction<T> parallelPrediction = new ParallelPrediction<>(forest, features, i, jobs);
@@ -159,13 +169,13 @@ public class RandomForestClassifier<T> implements Classifier<T> {
 
             try {
                 List<Future<List<Prediction<T>>>> futures = executorService.invokeAll(parallel);
-
                 predictions = futures.stream()
                         .flatMap(ThrowingFunction.wrap(listFuture -> listFuture.get().stream()))
                         .collect(Collectors.toList());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
         } else {
             predictions = new ArrayList<>(forest.size());
             for (TreeClassifier<T> tree : forest) {
@@ -177,6 +187,10 @@ public class RandomForestClassifier<T> implements Classifier<T> {
         return predictions;
     }
 
+    /**
+     * Get the names of all the features in the model.
+     * @return set of unique features used in the model
+     */
     @Override
     public Set<String> getFeatureNames() {
         Set<String> features = new HashSet<>();
@@ -187,13 +201,24 @@ public class RandomForestClassifier<T> implements Classifier<T> {
     }
 
 
+    /**
+     * A job that will only provide {@link Prediction} results
+     * from a subset of the trees in the forest.
+     * @param <T> the classification class
+     */
     private static class ParallelPrediction<T> implements Callable<List<Prediction<T>>> {
-
         private final int start;
         private final int offset;
         private final List<TreeClassifier<T>> forest;
         private final Map<String, Double> features;
 
+        /**
+         * Constructor
+         * @param forest the random forest
+         * @param features the features of a sample
+         * @param start the index of the tree in the forest this job will begin with
+         * @param offset the offest between the current tree and the next tree to call predict on
+         */
         private ParallelPrediction(List<TreeClassifier<T>> forest,
                                    Map<String, Double> features,
                                    int start,
@@ -204,14 +229,19 @@ public class RandomForestClassifier<T> implements Classifier<T> {
             this.features = features;
         }
 
+        /**
+         * Will classify the sample against every 'offset' tree from the starting tree.
+         * @return a {@link Prediction}
+         * @throws Exception when the model could not product a prediction
+         */
         @Override
         public List<Prediction<T>> call() throws Exception {
-
             List<Prediction<T>> predictions = new ArrayList<>();
 
             for (int i = start; i < forest.size(); i+=offset) {
                 predictions.add(forest.get(i).getClassification(features));
             }
+
             return predictions;
         }
     }
