@@ -1,4 +1,7 @@
-package rocks.vilaverde.classifier.dt;
+package rocks.vilaverde.classifier.dt.visitors;
+
+import rocks.vilaverde.classifier.dt.AbstractDecisionTreeVisitor;
+import rocks.vilaverde.classifier.dt.DecisionNode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,12 +14,13 @@ public class FeatureNameVisitor extends AbstractDecisionTreeVisitor {
 
   private final Set<String> featureNames = new HashSet<>();
 
-
+  /**
+   * Visit a {@link DecisionNode} and collect the feature name used in the decision.
+   * @param object the {@link DecisionNode} being visited.
+   */
   @Override
   public void visit(DecisionNode object) {
-
     featureNames.add(object.getFeatureName());
-
     super.visit(object);
   }
 

@@ -8,9 +8,6 @@ import rocks.vilaverde.classifier.dt.PredictionFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class DecisionTreeClassifierTest {
@@ -21,8 +18,12 @@ public class DecisionTreeClassifierTest {
         final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
         Assertions.assertNotNull(decisionTree);
 
-        Assertions.assertFalse(decisionTree.predict(Collections.singletonMap("feature1", 1.2)));
-        Assertions.assertTrue(decisionTree.predict(Collections.singletonMap("feature1", 2.4)));
+        Features features = Features.of("feature1");
+        FeatureVector sample1 = features.newSample().add(0, 1.2);
+        Assertions.assertFalse(decisionTree.predict(sample1).get(0));
+
+        FeatureVector sample2 = features.newSample().add(0, 2.4);
+        Assertions.assertTrue(decisionTree.predict(sample2).get(0));
 
         Assertions.assertNotNull(decisionTree.getFeatureNames());
         Assertions.assertEquals(1, decisionTree.getFeatureNames().size());
@@ -35,20 +36,22 @@ public class DecisionTreeClassifierTest {
         final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
         Assertions.assertNotNull(decisionTree);
 
-        Map<String, Double> features = new HashMap<>();
-        features.put("feature1", 0.0);
-        features.put("feature2", 1.0);
-        features.put("feature3", BooleanFeature.FALSE.asDouble());
-        features.put("feature4", 0.0);
-        features.put("feature5", BooleanFeature.FALSE.asDouble());
-        features.put("feature6", 1.0);
-        features.put("feature7", 1.0);
-        features.put("feature8", 0.0);
+        Features features = Features.of("feature1", "feature2", "feature3", "feature4",
+                "feature5", "feature6", "feature7", "feature8");
+        FeatureVector fv = features.newSample();
+        fv.add("feature1", 0.0)
+            .add("feature2", 1.0)
+            .add("feature3", false)
+            .add("feature4", 0.0)
+            .add("feature5", false)
+            .add("feature6", 1.0)
+            .add("feature7", 1.0)
+            .add("feature8", 0.0);
 
-        Assertions.assertFalse(decisionTree.predict(features));
+        Assertions.assertFalse(decisionTree.predict(fv).get(0));
 
-        features.put("feature5", BooleanFeature.TRUE.asDouble());
-        Assertions.assertTrue(decisionTree.predict(features));
+        fv.add("feature5", true);
+        Assertions.assertTrue(decisionTree.predict(fv).get(0));
 
         Assertions.assertNotNull(decisionTree.getFeatureNames());
         Assertions.assertEquals(8, decisionTree.getFeatureNames().size());
@@ -61,17 +64,19 @@ public class DecisionTreeClassifierTest {
             final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
             Assertions.assertNotNull(decisionTree);
 
-            Map<String, Double> features = new HashMap<>();
-            features.put("feature11", 0.0);
-            features.put("feature2", 1.0);
-            features.put("feature3", BooleanFeature.FALSE.asDouble());
-            features.put("feature4", 0.0);
-            features.put("feature5", BooleanFeature.FALSE.asDouble());
-            features.put("feature6", 1.0);
-            features.put("feature7", 1.0);
-            features.put("feature8", 0.0);
+            Features features = Features.of("feature11", "feature2", "feature3", "feature4",
+                    "feature5", "feature6", "feature7", "feature8");
+            FeatureVector fv = features.newSample();
+            fv.add(0, 0.0)
+                    .add(1, 1.0)
+                    .add(2, false)
+                    .add(3, 0.0)
+                    .add(4, false)
+                    .add(5, 1.0)
+                    .add(6, 1.0)
+                    .add(7, 0.0);
 
-            decisionTree.predict(features);
+            decisionTree.predict(fv);
         });
 
         Assertions.assertEquals("expected feature named 'feature1' but none provided",
@@ -85,15 +90,17 @@ public class DecisionTreeClassifierTest {
             final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
             Assertions.assertNotNull(decisionTree);
 
-            Map<String, Double> features = new HashMap<>();
-            features.put("feature1", 0.0);
-            features.put("feature2", 1.0);
-            features.put("feature3", BooleanFeature.FALSE.asDouble());
-            features.put("feature4", 0.0);
-            features.put("feature5", BooleanFeature.FALSE.asDouble());
-            features.put("feature6", 1.0);
+            Features features = Features.of("feature1", "feature2", "feature3", "feature4",
+                    "feature5", "feature6");
+            FeatureVector fv = features.newSample();
+            fv.add(0, 0.0)
+                    .add(1, 1.0)
+                    .add(2, false)
+                    .add(3, 0.0)
+                    .add(4, false)
+                    .add(5, 1.0);
 
-            decisionTree.predict(features);
+            decisionTree.predict(fv);
         });
 
         Assertions.assertEquals("expected feature named 'feature7' but none provided",
@@ -106,19 +113,21 @@ public class DecisionTreeClassifierTest {
         final Classifier<Boolean> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.BOOLEAN);
         Assertions.assertNotNull(decisionTree);
 
-        Map<String, Double> features = new HashMap<>();
-        features.put("feature1", 1.2);
-        features.put("feature2", 88.33);
-        features.put("feature3", BooleanFeature.FALSE.asDouble());
-        features.put("feature4", 1.727);
-        features.put("feature5", BooleanFeature.FALSE.asDouble());
-        features.put("feature6", 1.0);
-        features.put("feature7", 0.0048);
-        features.put("feature8", 0.0);
+        Features features = Features.of("feature1", "feature2", "feature3", "feature4",
+                "feature5", "feature6", "feature7", "feature8");
+        FeatureVector fv = features.newSample();
+        fv.add("feature1", 1.2)
+                .add("feature2", 88.33)
+                .add("feature3", false)
+                .add("feature4", 1.727)
+                .add("feature5", false)
+                .add("feature6", 1.0)
+                .add("feature7", 0.0048)
+                .add("feature8", 0.0);
 
-        Assertions.assertFalse(decisionTree.predict(features));
+        Assertions.assertFalse(decisionTree.predict(fv).get(0));
 
-        double[] prediction = decisionTree.predict_proba(features);
+        double[] prediction = decisionTree.predict_proba(fv)[0];
         Assertions.assertNotNull(prediction);
         Assertions.assertEquals(0.63636364, prediction[0], .00000001);
         Assertions.assertEquals(0.36363636, prediction[1], .00000001);
@@ -130,19 +139,19 @@ public class DecisionTreeClassifierTest {
         final Classifier<Integer> decisionTree = DecisionTreeClassifier.parse(tree, PredictionFactory.INTEGER);
         Assertions.assertNotNull(decisionTree);
 
-        Map<String, Double> features = new HashMap<>();
-        features.put("sepal length (cm)", 3.0);
-        features.put("sepal width (cm)", 5.0);
-        features.put("petal length (cm)", 4.0);
-        features.put("petal width (cm)", 2.0);
-
-        Integer prediction = decisionTree.predict(features);
+        Features features = Features.of("sepal length (cm)",
+                "sepal width (cm)",
+                "petal length (cm)",
+                "petal width (cm)");
+        FeatureVector fv = features.newSample();
+        fv.add(0, 3.0).add(1, 5.0).add(2, 4.0).add(3, 2.0);
+        Integer prediction = decisionTree.predict(fv).get(0);
         Assertions.assertNotNull(prediction);
 
         Assertions.assertEquals(1, prediction.intValue());
 
-        features.put("sepal length (cm)", 6.0);
-        prediction = decisionTree.predict(features);
+        fv.add("sepal length (cm)", 6.0);
+        prediction = decisionTree.predict(fv).get(0);
         Assertions.assertEquals(2, prediction.intValue());
     }
 
