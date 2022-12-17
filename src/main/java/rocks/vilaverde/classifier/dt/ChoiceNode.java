@@ -6,7 +6,7 @@ import rocks.vilaverde.classifier.Operator;
  * Represents a Choice in the decision tree, where when the expression is evaluated,
  * if true will result in the child node of the choice being selected.
  */
-class ChoiceNode extends TreeNode {
+public class ChoiceNode extends TreeNode {
   private final Operator op;
   private final Double value;
 
@@ -38,7 +38,7 @@ class ChoiceNode extends TreeNode {
     return String.format("%s %s", op.toString(), value.toString());
   }
 
-  public boolean eval(Double featureValue) {
+  public boolean eval(double featureValue) {
     return op.apply(featureValue, value);
   }
 }

@@ -1,16 +1,27 @@
 package rocks.vilaverde.classifier.dt;
 
+import rocks.vilaverde.classifier.AbstractTreeClassifier;
+import rocks.vilaverde.classifier.FeatureVector;
 import rocks.vilaverde.classifier.Operator;
 import rocks.vilaverde.classifier.Prediction;
+import rocks.vilaverde.classifier.dt.visitors.FeatureNameVisitor;
+import rocks.vilaverde.classifier.dt.visitors.PredictVisitor;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.Reader;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
-public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
+/**
+ * Represents a DecisionTreeClassifier trained in scikit-learn and exported using
+ * export_text.
+ * @param <T> the Prediction Class
+ */
+public class DecisionTreeClassifier<T> extends AbstractTreeClassifier<T>
+        implements TreeClassifier<T> {
 
   /**
    * Factory method to create the classifier from the {@link Reader}.
@@ -49,64 +60,51 @@ public class DecisionTreeClassifier<T> implements TreeClassifier<T> {
   /**
    * Predict class or regression value for features.
    * For the classification model, the predicted class for the features of the sample is returned.
-   * @param features Map of feature name to value
+   * @param samples Map of feature name to value
    * @return predicted class
    */
-  public T predict(Map<String, Double> features) {
-    return getClassification(features).get();
+  public List<T> predict(FeatureVector ... samples) {
+    return Arrays.stream(samples)
+            .map(featureVector -> getClassification(featureVector).get())
+            .collect(Collectors.toList());
   }
 
   /**
    * Predict class probabilities of the input features.
    * The predicted class probability is the fraction of samples of the same class in a leaf.
-   * @param features Map of feature name to value
+   * @param samples Map of feature name to value
    * @return the class probabilities of the input sample
    */
   @Override
-  public double[] predict_proba(Map<String, Double> features) {
-    return getClassification(features).getProbability();
+  public double[][] predict_proba(FeatureVector ... samples) {
+    double[][] probabilities = null;
+
+    for (int i = 0; i < samples.length; i++) {
+      double[] result = getClassification(samples[i]).getProbability();
+      if (probabilities == null) {
+        probabilities = new double[samples.length][result.length];
+      }
+
+      probabilities[i] = result;
+    }
+
+    return probabilities;
   }
 
   /**
    * Find the {@link Prediction} in the decision tree.
    */
-  public Prediction<T> getClassification(Map<String, Double> features) {
-    validateFeature(features);
-
-    TreeNode currentNode = root;
-
-    // traverse through the tree until the end node is reached.
-    while (!(currentNode instanceof EndNode)) {
-
-      if (currentNode != null) {
-        DecisionNode decisionNode = ((DecisionNode) currentNode);
-
-        Double featureValue = features.get(decisionNode.getFeatureName());
-        if (featureValue == null) {
-          featureValue = Double.NaN;
-        }
-
-        if (decisionNode.getLeft().eval(featureValue)) {
-          currentNode = decisionNode.getLeft().getChild();
-        } else if (decisionNode.getRight().eval(featureValue)) {
-          currentNode = decisionNode.getRight().getChild();
-        } else {
-          // if I get here something is wrong since none of the branches evaluated to true
-          throw new RuntimeException(String.format("no branches evaluated to true for feature '%s'",
-                  decisionNode.getFeatureName()));
-        }
-      }
-    }
-
-    return (Prediction<T>) currentNode;
+  public Prediction<T> getClassification(FeatureVector sample) {
+    validateFeatures(sample);
+    return PredictVisitor.predict(sample, root);
   }
 
   /**
    * Validate the features provided are expected.
    */
-  private void validateFeature(Map<String, Double> features) throws IllegalArgumentException {
+  private void validateFeatures(FeatureVector sample) throws IllegalArgumentException {
     for (String f : featureNames) {
-      if (!features.containsKey(f)) {
+      if (!sample.hasFeature(f)) {
         throw new IllegalArgumentException(String.format("expected feature named '%s' but none provided", f));
       }
     }

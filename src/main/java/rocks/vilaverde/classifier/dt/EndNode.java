@@ -8,13 +8,18 @@ import java.util.Arrays;
  * Represents the end of the tree, where no further decisions can be made. The end node contains
  * the prediction.
  */
-class EndNode<T> extends TreeNode implements Prediction<T> {
+public class EndNode<T> extends TreeNode implements Prediction<T> {
   private static final MessageFormat CLASS_FORMAT = new MessageFormat("class: {0}");
   private final T prediction;
 
   /**
    * Factory method to create the appropriate {@link EndNode} from the
    * String in exported tree model.
+   * @param endNodeString the serialized EndNode text from the sklearn export_text
+   * @param predictionFactory the {@link PredictionFactory} used to deserialize the value after "class:"
+   * @return the {@link EndNode}
+   * @throws Exception may be thrown when end node string can't be parsed.
+   * @param <T> the java type of the classification once deserialized by the predictionFactory
    */
   public static <T> EndNode<T> create(String endNodeString,
                                   PredictionFactory<T> predictionFactory) throws Exception {
@@ -56,7 +61,7 @@ class EndNode<T> extends TreeNode implements Prediction<T> {
    * {@link EndNode} that supports calculating the probability from the
    * weights in the exported tree model.
    */
-  static class WeightedEndNode<T> extends EndNode<T> {
+  public static class WeightedEndNode<T> extends EndNode<T> {
 
     private static final MessageFormat WEIGHTS_FORMAT = new MessageFormat("weights: {0} class: {1}");
 

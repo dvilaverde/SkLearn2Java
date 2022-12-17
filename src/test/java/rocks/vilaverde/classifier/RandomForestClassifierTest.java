@@ -11,8 +11,8 @@ import rocks.vilaverde.classifier.ensemble.RandomForestClassifier;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,18 +40,36 @@ public class RandomForestClassifierTest {
                 PredictionFactory.DOUBLE, executorService);
         Assertions.assertNotNull(decisionTree);
 
-        double[] proba = decisionTree.predict_proba(getSample1());
+        double[] proba = decisionTree.predict_proba(getSample1())[0];
         assertSample(proba, .06, .62, .32);
 
-        Double prediction = decisionTree.predict(getSample1());
+        Double prediction = decisionTree.predict(getSample1()).get(0);
         Assertions.assertNotNull(prediction);
         Assertions.assertEquals(1.0, prediction, .0);
 
-        prediction = decisionTree.predict(getSample2());
+        prediction = decisionTree.predict(getSample2()).get(0);
         Assertions.assertEquals(2, prediction.intValue());
 
-        proba = decisionTree.predict_proba(getSample2());
+        proba = decisionTree.predict_proba(getSample2())[0];
         assertSample(proba, 0.0, .44, .56);
+    }
+
+    @Test
+    public void randomForestParallel10000() throws Exception {
+        TarArchiveInputStream exported = getExportedModel("rf/iris.tgz");
+        final Classifier<Double> decisionTree = RandomForestClassifier.parse(exported,
+                PredictionFactory.DOUBLE, executorService);
+        Assertions.assertNotNull(decisionTree);
+
+        List<FeatureVector> vectorList = new ArrayList<>(10000);
+        for (int i = 0; i<  5000; i++) {
+            vectorList.add(getSample1());
+            vectorList.add(getSample2());
+        }
+
+        double[][] proba = decisionTree.predict_proba(vectorList.toArray(new FeatureVector[0]));
+        assertSample(proba[0], .06, .62, .32);
+        assertSample(proba[1], 0.0, .44, .56);
     }
 
     @Test
@@ -60,17 +78,17 @@ public class RandomForestClassifierTest {
         final Classifier<Double> decisionTree = RandomForestClassifier.parse(exported, PredictionFactory.DOUBLE);
         Assertions.assertNotNull(decisionTree);
 
-        double[] proba = decisionTree.predict_proba(getSample1());
+        double[] proba = decisionTree.predict_proba(getSample1())[0];
         assertSample(proba, .06, .62, .32);
 
-        Double prediction = decisionTree.predict(getSample1());
+        Double prediction = decisionTree.predict(getSample1()).get(0);
         Assertions.assertNotNull(prediction);
         Assertions.assertEquals(1.0, prediction, .0);
 
-        prediction = decisionTree.predict(getSample2());
+        prediction = decisionTree.predict(getSample2()).get(0);
         Assertions.assertEquals(2, prediction.intValue());
 
-        proba = decisionTree.predict_proba(getSample2());
+        proba = decisionTree.predict_proba(getSample2())[0];
         assertSample(proba, 0.0, .44, .56);
     }
 
@@ -82,10 +100,10 @@ public class RandomForestClassifierTest {
             Assertions.assertNotNull(decisionTree);
 
             // create invalid number of features.
-            Map<String, Double> features = getSample1();
-            features.remove("sepal length (cm)");
-
-            decisionTree.predict(features);
+            Features features = Features.of("sepal width (cm)", "petal length (cm)", "petal width (cm)");
+            FeatureVector fv = features.newSample();
+            fv.add(0, 3.0).add(1, 5.0).add(2, 4.0);
+            decisionTree.predict(fv);
         });
 
         Assertions.assertEquals("expected feature named 'sepal length (cm)' but none provided",
@@ -101,22 +119,28 @@ public class RandomForestClassifierTest {
         Assertions.assertEquals(4, decisionTree.getFeatureNames().size());
     }
 
-    private Map<String, Double> getSample1() {
-        Map<String, Double> features = new HashMap<>();
-        features.put("sepal length (cm)", 3.0);
-        features.put("sepal width (cm)", 5.0);
-        features.put("petal length (cm)", 4.0);
-        features.put("petal width (cm)", 2.0);
-        return features;
+    private FeatureVector getSample1() {
+        Features features = Features.of("sepal length (cm)",
+                "sepal width (cm)",
+                "petal length (cm)",
+                "petal width (cm)");
+        FeatureVector fv = features.newSample();
+        return fv.add(0, 3.0)
+                .add(1, 5.0)
+                .add(2, 4.0)
+                .add(3, 2.0);
     }
 
-    private Map<String, Double> getSample2() {
-        Map<String, Double> features = new HashMap<>();
-        features.put("sepal length (cm)", 1.0);
-        features.put("sepal width (cm)", 2.0);
-        features.put("petal length (cm)", 3.0);
-        features.put("petal width (cm)", 4.0);
-        return features;
+    private FeatureVector getSample2() {
+        Features features = Features.of("sepal length (cm)",
+                "sepal width (cm)",
+                "petal length (cm)",
+                "petal width (cm)");
+        FeatureVector fv = features.newSample();
+        return fv.add(0, 1.0)
+                .add(1, 2.0)
+                .add(2, 3.0)
+                .add(3, 4.0);
     }
 
     private void assertSample(double[] proba, double expected, double expected1, double expected2) {

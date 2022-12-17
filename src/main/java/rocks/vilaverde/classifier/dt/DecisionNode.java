@@ -1,14 +1,11 @@
 package rocks.vilaverde.classifier.dt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Represents a decision in the DecisionTreeClassifier. The decision will have
  * a left and right hand {@link ChoiceNode} to be evaluated.
  * A {@link ChoiceNode} may have nested {@link DecisionNode} or {@link EndNode}.
  */
-class DecisionNode extends TreeNode {
+public class DecisionNode extends TreeNode {
 
   private final String featureName;
 
@@ -26,7 +23,7 @@ class DecisionNode extends TreeNode {
 
   /**
    * Private Constructor.
-   * @param featureName
+   * @param featureName the name of the feature used in this decision
    */
   private DecisionNode(String featureName) {
     this.featureName = featureName.intern();
