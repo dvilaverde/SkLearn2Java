@@ -9,5 +9,10 @@ import rocks.vilaverde.classifier.Prediction;
  */
 public interface TreeClassifier<T> extends Classifier<T> {
 
+    /**
+     * Gets a Prediction for a provided FeatureVector.
+     * @param features the feature vector
+     * @return a Prediction
+     */
     Prediction<T> getClassification(FeatureVector features);
 }

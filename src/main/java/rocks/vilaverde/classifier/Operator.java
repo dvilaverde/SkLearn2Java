@@ -3,10 +3,15 @@ package rocks.vilaverde.classifier;
 import java.util.function.BiFunction;
 
 public enum Operator {
+  /** Less than */
   LT("<", (leftOperand, rightOperand) -> leftOperand < rightOperand),
+  /** Greater than */
   GT(">", (leftOperand, rightOperand) -> leftOperand > rightOperand),
+  /** Less than or Equal */
   LT_EQ("<=", (leftOperand, rightOperand) -> leftOperand <= rightOperand),
+  /** Greater than or equal */
   GT_EQ(">=", (leftOperand, rightOperand) -> leftOperand >= rightOperand),
+  /** Equal */
   EQ("=", (leftOperand, rightOperand) -> doubleIsSame(leftOperand, rightOperand, .0001));
 
   private final String operator;
@@ -42,10 +47,20 @@ public enum Operator {
     }
   }
 
+  /**
+   * Apply this operation on the operands.
+   * @param leftOperand the value left of the operator
+   * @param rightOperand the value right of the operator
+   * @return result of the operation
+   */
   public boolean apply(Double leftOperand, Double rightOperand) {
     return this.operation.apply(leftOperand, rightOperand);
   }
 
+  /**
+   * For debugging
+   * @return String
+   */
   @Override
   public String toString() {
     return operator;

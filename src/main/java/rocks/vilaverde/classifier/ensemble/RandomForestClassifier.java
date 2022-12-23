@@ -140,6 +140,11 @@ public class RandomForestClassifier<T> extends AbstractTreeClassifier<T>
         return probabilities;
     }
 
+    /**
+     * Predict for a single sample.
+     * @param sample the FeatureVector
+     * @return the prediction
+     */
     protected T predictSingle(FeatureVector sample) {
         return getClassification(sample).get();
     }

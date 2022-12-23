@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Interface to be defined by classifier implementations. A classifier will provide a classification
+ * for a provided feature vector.
+ * @param <T>
+ */
 public interface Classifier<T> {
 
   /**

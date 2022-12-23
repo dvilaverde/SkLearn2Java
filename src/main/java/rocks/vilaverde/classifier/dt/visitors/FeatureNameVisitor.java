@@ -24,6 +24,10 @@ public class FeatureNameVisitor extends AbstractDecisionTreeVisitor {
     super.visit(object);
   }
 
+  /**
+   * Get the Set of strings representing the features in the model.
+   * @return Set of String
+   */
   public Set<String> getFeatureNames() {
     return featureNames;
   }

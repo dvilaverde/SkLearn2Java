@@ -8,8 +8,17 @@ package rocks.vilaverde.classifier.dt;
 @FunctionalInterface
 public interface PredictionFactory<T> {
 
+    /**
+     * The prediction class is of type boolean in the model.
+     */
     PredictionFactory<Boolean> BOOLEAN = value ->  Boolean.valueOf(value.toLowerCase());
+    /**
+     * The prediction class is of type Integer in the model.
+     */
     PredictionFactory<Integer> INTEGER = Integer::valueOf;
+    /**
+     * The prediction class is of type Double in the model.
+     */
     PredictionFactory<Double> DOUBLE = Double::parseDouble;
 
     /**

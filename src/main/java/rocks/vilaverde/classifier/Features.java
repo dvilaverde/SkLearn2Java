@@ -37,6 +37,11 @@ public class Features {
         return new Features(features);
     }
 
+    /**
+     * Convert a Set of Strings to a Features object.
+     * @param features the Set of strings
+     * @return a Features
+     */
     public static Features fromSet(Set<String> features) {
         return new Features(features.toArray(new String[0]));
     }
@@ -56,6 +61,10 @@ public class Features {
         return new FeatureVector(this);
     }
 
+    /**
+     * Add a Feature to the set of features.
+     * @param feature Feature name
+     */
     public void addFeature(String feature) {
         if (!allowFeatureAdd) {
             throw new IllegalStateException("features are immutable");
@@ -72,10 +81,19 @@ public class Features {
         }
     }
 
+    /**
+     * Get the number of features in this Features.
+     * @return the size of teh features.
+     */
     public int getLength() {
         return this.features.size();
     }
 
+    /**
+     * Get the index of a feature from the feature vector.
+     * @param feature the feature name
+     * @return the position in the array that will hold this feature
+     */
     public int getFeatureIndex(String feature) {
         Integer index = this.features.get(feature);
         if (index == null) {
@@ -85,6 +103,10 @@ public class Features {
         return index;
     }
 
+    /**
+     * Get the names of the features in the model.
+     * @return Set of feature names
+     */
     public Set<String> getFeatureNames() {
         return Collections.unmodifiableSet(this.features.keySet());
     }

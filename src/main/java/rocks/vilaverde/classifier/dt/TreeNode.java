@@ -2,6 +2,9 @@ package rocks.vilaverde.classifier.dt;
 
 import rocks.vilaverde.classifier.Visitable;
 
+/**
+ * Base class for all nodes in a Decision Tree.
+ */
 public abstract class TreeNode implements Visitable<TreeNode, AbstractDecisionTreeVisitor> {
 
   /**
