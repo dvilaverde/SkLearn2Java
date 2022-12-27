@@ -115,4 +115,5 @@ Then you can use the RandomForestClassifier class to parse the TAR archive.
 ```
 
 ## Testing
-Testing was done using sci-kit learn 1.1.3.
+Testing was done using models exported using sci-kit learn version 1.1.3, but should 
+work with newer versions of sci-kit learn.
