@@ -10,7 +10,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="scikit-learn-2-java" target="11" />
       <module name="SkLearn2Java" target="11" />
     </bytecodeTargetLevel>
   </component>
